@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Color Easily Palette Generator</title>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      margin: 1.3rem;
+      color: #081439;
+      background-color: #faf6e9;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    h1 {
+      font-size: 1.45rem;
+      margin: 1rem 0;
+    }
+    h2 {
+      font-size: 0.875rem;
+      margin: 1rem 0;
+    }
+    p {
+      line-height: 1.5;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .input-wrapper {
+      margin: 1rem 0;
+      display: grid;
+      gap: 0.5rem;
+    }
+    label {
+      font-weight: bold;
+      font-size: 0.925rem;
+    }
+    input {
+      height: 2rem;
+      padding: 0.5rem;
+      border-radius: 3px;
+      border: solid 1px #081439;
+    }
+
+    .radio-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    .radio-wrapper > div {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .button-wrapper {
+      margin: 1rem 0;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+    }
+    button {
+      font-size: 0.825rem;
+      font-weight: bold;
+      padding:  0.5rem;
+      border-radius: 3px;
+      border: none;
+      cursor: pointer;
+    }
+    #create {
+      color: white;
+      background-color: #081439;
+    }
+    #cancel {
+      color: #ffffff;
+      background-color: #d81919;
+    }
+
+    .troubleshooting {
+      margin: 2rem 0 0;
+    }
+    .troubleshooting * {
+      font-size: 0.825rem;
+    }
+    .italic {
+      font-style: italic;
+    }
+    .bold {
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Color Easily Palette Generator</h1>
+  <p>Import your Color Easily Palettes into Figma!</p>
+  <p>Simply paste the url for your chosen palette into the input field below.</p>
+  
+  <div class="input-wrapper">
+    <label for="url">Palette URL</label>
+    <input id="url" placeholder="https://www.coloreasily.com/?colors=0f1009-f9faf5-7badb7-ecefe1-caa0c3">
+  </div>
+  
+  <div class="radio-wrapper">
+    <label>Update Color Styles</label>
+
+    <div>
+      <input type="radio" id="updateColors" name="colorStyles">
+      <label for="updateColors">yes</label>
+    </div>
+
+    <div>
+      <input type="radio" id="dontUpdateColors" name="colorStyles" checked>
+      <label for="dontUpdateColors">no</label>
+    </div>
+  </div>
+
+  <div class="button-wrapper">
+    <button id="create">Generate</button>
+    <button id="cancel">Cancel</button>
+  </div>
+
+  <div class="troubleshooting">
+    <p class='bold'>Make sure you've pasted the url in the following form:</p>
+    <p class='italic'>https://www.coloreasily.com/?colors=0f1009-f9faf5-7badb7-ecefe1-caa0c3</p>
+    <p class='bold'>Or alternately:</p>
+    <p class='italic'>=0f1009-f9faf5-7badb7-ecefe1-caa0c3</p>
+  </div>
+
+  <div class="troubleshooting">
+    <p class='bold'>If update color styles is selected, then the color styles for 'text', 'background', 'accent 1', 'accent 2', 'accent 3' etc. will be replaced by the newly imported colors.</p>
+  </div>
+  
+</body>
+
+<script>
+  document.getElementById('create').onclick = () => {
+    const urlInput = document.getElementById('url');
+    const updateColorsRadio = document.getElementById('updateColors');
+    const replaceColors = updateColorsRadio.checked;
+
+    if(urlInput.value == '') return urlInput.value = 'Enter your URL';
+    if(!urlInput.value.includes('=')) return urlInput.value = `URL format is invalid. Check accepted formats below.`;
+    if(urlInput.value.search(/^[^=]*=[^=]*$/) == -1) return urlInput.value = `URL format is invalid. Check accepted formats below.`;
+    
+    const url = urlInput.value;
+    const palette = url.split('=')[1].split('-');
+
+    for(let i = 0; i < palette.length; i++) {
+      if(palette[i].length !== 6) return urlInput.value = `Colors in your URL are invalid. Provide full hex codes.`;
+      if(palette[i].search(/[^0-9a-f]/gi) !== -1) return urlInput.value = `Colors in your URL are invalid.`;
+    }
+
+    parent.postMessage({ pluginMessage: { type: 'generate-palette', palette, replaceColors } }, '*')
+  }
+  
+  document.getElementById('cancel').onclick = () => {
+    parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*')
+  }
+  </script>
+</html>
