@@ -4,10 +4,11 @@
 // This shows the HTML page in "ui.html".
 figma.showUI(__html__, {width: 400, height: 630, title:"Color Easily Palette Generator"});
 
-figma.ui.onmessage = msg => {
+// updated to support dynamic page loading
+figma.ui.onmessage = async (msg) => {
   if (msg.type === 'generate-palette') {  
     const nodes: SceneNode[] = [];
-    const currentColorStyles = figma.getLocalPaintStyles();
+    const currentColorStyles = await figma.getLocalPaintStylesAsync();
     const colorStyleNamesArr = currentColorStyles.map((colorStyle) => colorStyle.name);
 
     if(msg.replaceColors) {
